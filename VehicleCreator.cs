@@ -220,6 +220,21 @@ namespace VehicleDataExtractor
             // Yield to stabilize native calls
             GameFiber.Yield();
 
+            string modelName;
+            try
+            {
+                modelName = NativeFunction.Natives.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL<string>(vehicle.Model.Hash);
+                if (string.IsNullOrEmpty(modelName) || modelName == "CARNOTFOUND")
+                {
+                    modelName = vehicle.Model.Name.ToUpper();
+                }
+            }
+            catch (Exception ex)
+            {
+                Game.LogTrivial($"Failed to get vehicle model name: {ex.Message}");
+                modelName = vehicle.Model.Name.ToUpper();
+            }
+
             int primaryColor = 0, secondaryColor = 0;
             try
             {
@@ -442,8 +457,8 @@ namespace VehicleDataExtractor
 
             var data = new DispatchableVehicle
             {
-                DebugName = $"{vehicle.Model.Name}_CustomVehicle_{DateTime.Now:yyyyMMdd_HHmmss}",
-                ModelName = vehicle.Model.Name.ToUpper(),
+                DebugName = $"{modelName}_CustomVehicle_{DateTime.Now:yyyyMMdd_HHmmss}",
+                ModelName = modelName,
                 MinOccupants = 1,
                 MaxOccupants = seatCount,
                 RequiresDLC = IsDLCVehicle(vehicle.Model.Hash),
@@ -641,7 +656,7 @@ namespace VehicleDataExtractor
             sb.AppendLine($"    <WantedSpawnChance>{data.WantedSpawnChance}</WantedSpawnChance>");
             sb.AppendLine($"    <MinWantedLevelSpawn>{data.MinWantedLevelSpawn}</MinWantedLevelSpawn>");
             sb.AppendLine($"    <MaxWantedLevelSpawn>{data.MaxWantedLevelSpawn}</MaxWantedLevelSpawn>");
-            //sb.AppendLine($"    <AdditionalSpawnChanceOffRoad>{data.AdditionalSpawnChanceOffRoad}</AdditionalSpawnChanceOffRoad>");
+            sb.AppendLine($"    <AdditionalSpawnChanceOffRoad>{data.AdditionalSpawnChanceOffRoad}</AdditionalSpawnChanceOffRoad>");
             //sb.AppendLine($"    <RequiredPrimaryColorID>{data.RequiredPrimaryColorID}</RequiredPrimaryColorID>");
             //sb.AppendLine($"    <RequiredSecondaryColorID>{data.RequiredSecondaryColorID}</RequiredSecondaryColorID>");
             //sb.AppendLine($"    <RequiredPearlescentColorID>{data.RequiredPearlescentColorID}</RequiredPearlescentColorID>");
